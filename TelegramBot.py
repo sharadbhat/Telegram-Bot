@@ -3,6 +3,9 @@ from telegram.ext import MessageHandler, Filters
 from telegram.ext import CommandHandler
 import logging
 import telegram
+import os.path
+import sys
+import json
 import requests
 import ast
 import string
@@ -12,8 +15,15 @@ import ast
 import urllib.parse
 import urllib.request
 import bs4
+try:
+    import apiai
+except ImportError:
+    sys.path.append(
+        os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
+    )
+    import apiai
 
-updater = Updater(token='*******************')
+updater = Updater(token='***********************************')
 
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -42,7 +52,7 @@ def helpText(bot, update):
 def sendWeather(bot, update, args):
     try:
         #args = "new", "York"
-        apiKey = "*******************"
+        apiKey = "***********************"
         citySendToAPI = ''.join(args).lower() #newyork
         city = ' '.join(args).lower() #new york
         r = (requests.get("http://api.openweathermap.org/data/2.5/weather?q=" + citySendToAPI + "&APPID=" + apiKey + "&units=metric").content).decode("utf-8")
@@ -83,7 +93,7 @@ def sendJoke(bot, update):
         bot.send_message(chat_id=update.message.chat_id, text="Error in fetching joke")
 
 
-#Returns the YouTube URL of the video. "/video Daft Punk Get Lucky"
+#
 def sendVideoURL(bot, update, args):
     try:
         textToSearch = args
@@ -106,12 +116,12 @@ def restaurantsAroundMe(bot, update, args):
             bot.send_message(chat_id=update.message.chat_id, text="Please type location name.\n/restaurants area name")
         else:
             areaName = '%20'.join(args)
-            headers = {'Accept': 'application/json', 'user-key': '*************************'}
+            headers = {'Accept': 'application/json', 'user-key': '*******************'}
             r = (requests.get("https://developers.zomato.com/api/v2.1/search?q=" + areaName, headers=headers).content).decode("utf-8")
             a = ast.literal_eval(r)
             count = 0
+            area = a["restaurants"][0]["restaurant"]["location"]["locality"]
             text = ""
-            area = a["restaurants"][0]["location"]["locality"]
             for i in a["restaurants"]:
                 count += 1
                 link = str(i["restaurant"]["url"]).replace("\\","")
@@ -143,7 +153,20 @@ def sendQuote(bot, update):
 
 #Returns the message sent to it.
 def echo(bot, update):
-    bot.send_message(chat_id=update.message.chat_id, text=update.message.text)
+    try:
+        inputQuery = update.message.text
+        CLIENT_ACCESS_TOKEN = '*****************'
+        ai = apiai.ApiAI(CLIENT_ACCESS_TOKEN)
+        request = ai.text_request()
+        request.lang = 'en'
+        request.query = inputQuery
+        response = request.getresponse()
+        responsestr = response.read().decode('utf-8')
+        response_obj = json.loads(responsestr)
+        reply = response_obj["result"]["fulfillment"]["speech"]
+        bot.send_message(chat_id=update.message.chat_id, text=reply)
+    except:
+        bot.send_message(chat_id=update.message.chat_id, text=update.message.text)
 
 
 #Returns "Unknown Command" if the command is not recognized.
@@ -189,8 +212,8 @@ def downloadImage(bot, update, orientation):
 
 #Gets the definition from Oxford Dictionary API.
 def defineWord(wordID, bot, update):
-    appID = '*******'
-    appKey = '**************************'
+    appID = '********'
+    appKey = '********************'
     language = 'en'
     if wordID == "":
         bot.send_message(chat_id=update.message.chat_id, text="Please enter a word after the /define command")
