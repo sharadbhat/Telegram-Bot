@@ -48,7 +48,7 @@ def sendWeather(bot, update, args):
         r = (requests.get("http://api.openweathermap.org/data/2.5/weather?q=" + citySendToAPI + "&APPID=" + apiKey + "&units=metric").content).decode("utf-8")
         a = ast.literal_eval(r)
         weather = (a["weather"][0]["description"]).capitalize()
-        temperature = str(a["main"]["temp"]) + "°C"
+        temperature = str(a["main"]["temp"]) + "Â°C"
         humidity = str(a["main"]["humidity"]) + "%"
         wind = str(a["wind"]["speed"]) + "km/h"
         cityFound = str(a["name"]) #New York
@@ -83,7 +83,7 @@ def sendJoke(bot, update):
         bot.send_message(chat_id=update.message.chat_id, text="Error in fetching joke")
 
 
-#
+#Returns the YouTube URL of the video. "/video Daft Punk Get Lucky"
 def sendVideoURL(bot, update, args):
     try:
         textToSearch = args
