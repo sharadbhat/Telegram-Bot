@@ -102,8 +102,7 @@ def sendVideoURL(bot, update, args):
 #Returns a list of restaurants and cuisines
 def restaurantsAroundMe(bot, update, args):
     try:
-        area = string.capwords(' '.join(args).lower())
-        if area == "":
+        if len(args) == 0:
             bot.send_message(chat_id=update.message.chat_id, text="Please type location name.\n/restaurants area name")
         else:
             areaName = '%20'.join(args)
@@ -112,6 +111,7 @@ def restaurantsAroundMe(bot, update, args):
             a = ast.literal_eval(r)
             count = 0
             text = ""
+            area = a["restaurants"][0]["location"]["locality"]
             for i in a["restaurants"]:
                 count += 1
                 link = str(i["restaurant"]["url"]).replace("\\","")
