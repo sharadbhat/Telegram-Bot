@@ -24,6 +24,9 @@ except ImportError:
 
 updater = Updater(token='***********************************')
 
+CLIENT_ACCESS_TOKEN = '*****************'
+ai = apiai.ApiAI(CLIENT_ACCESS_TOKEN)
+
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
@@ -40,12 +43,33 @@ def start(bot, update):
 def helpText(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="For a quote, reply with /quote")
     bot.send_message(chat_id=update.message.chat_id, text="For a joke, reply with /joke")
+    bot.send_message(chat_id=update.message.chat_id, text="For a comic, reply with /comic")
     bot.send_message(chat_id=update.message.chat_id, text="For the weather, reply with -\n/weather <cityname>\n\nExample:\n/weather bangalore")
     bot.send_message(chat_id=update.message.chat_id, text="For an image, reply with -\n/image <portrait/landscape/square>\n\nExample:\n/image portrait")
     bot.send_message(chat_id=update.message.chat_id, text="For a random fact, reply with /fact")
     bot.send_message(chat_id=update.message.chat_id, text="For a video, reply with /video <name>\n\nExample: /video Daft Punk Get Lucky")
     bot.send_message(chat_id=update.message.chat_id, text="For definition of a word, reply with -\n/define <word>\n\nExample:\n/define ostentatious")
     bot.send_message(chat_id=update.message.chat_id, text="For restaurants in an area, reply with -\n/restaurants <area name>\n\nExample:\n/restaurants koramangala")
+
+
+#Fetches a random comic from xkcd. "/comic"
+def sendComic(bot, update):
+    try:
+        r = requests.get("https://c.xkcd.com/random/comic/")
+        soup = bs4.BeautifulSoup(r.text, 'html.parser')
+        count = 0
+        for img in soup.find_all('img'):
+            url = "http:" + str(img.get('src'))
+            title = img.get('title')
+            if count == 1:
+                break
+            count = 1
+        bot.send_message(chat_id=update.message.chat_id, text="Here is the comic.")
+        bot.send_photo(chat_id=update.message.chat_id, photo=url)
+        bot.send_message(chat_id=update.message.chat_id, text=title)
+    except:
+        bot.send_message(chat_id=update.message.chat_id, text="Error in fetching comic")
+
 
 #Returns weather of the place. "/weather bangalore"
 def sendWeather(bot, update, args):
@@ -92,7 +116,7 @@ def sendJoke(bot, update):
         bot.send_message(chat_id=update.message.chat_id, text="Error in fetching joke")
 
 
-#
+#Returns the YouTube URL of the first video. "/video Daft Punk Get Lucky"
 def sendVideoURL(bot, update, args):
     try:
         textToSearch = args
@@ -154,8 +178,6 @@ def sendQuote(bot, update):
 def echo(bot, update):
     try:
         inputQuery = update.message.text
-        CLIENT_ACCESS_TOKEN = '*****************'
-        ai = apiai.ApiAI(CLIENT_ACCESS_TOKEN)
         request = ai.text_request()
         request.lang = 'en'
         request.query = inputQuery
@@ -234,6 +256,7 @@ startHandler = CommandHandler('start', start)
 helpHandler = CommandHandler('help', helpText)
 weatherHandler = CommandHandler('weather', sendWeather, pass_args=True)
 factHandler = CommandHandler('fact', sendNumberFact)
+comicHandler = CommandHandler('comic', sendComic)
 restaurantHandler = CommandHandler('restaurants', restaurantsAroundMe, pass_args=True)
 videoURLHandler = CommandHandler('video', sendVideoURL, pass_args=True)
 jokeHandler=  CommandHandler('joke', sendJoke)
@@ -247,6 +270,7 @@ unknownHandler = MessageHandler(Filters.command, unknownCommand)
 dispatcher.add_handler(startHandler)
 dispatcher.add_handler(imageHandler)
 dispatcher.add_handler(weatherHandler)
+dispatcher.add_handler(comicHandler)
 dispatcher.add_handler(restaurantHandler)
 dispatcher.add_handler(videoURLHandler)
 dispatcher.add_handler(helpHandler)
