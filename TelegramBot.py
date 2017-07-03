@@ -10,7 +10,6 @@ import requests
 import ast
 import string
 import os
-import json
 import ast
 import urllib.parse
 import urllib.request
