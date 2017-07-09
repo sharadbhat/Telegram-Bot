@@ -75,19 +75,19 @@ def sendComic(bot, update):
 def sendWeather(bot, update, args):
     try:
         #args = "new", "York"
-        apiKey = "***********************"
-        citySendToAPI = ''.join(args).lower() #newyork
+        api_key = "***********************"
+        city_sent_to_API = ''.join(args).lower() #newyork
         city = ' '.join(args).lower() #new york
-        r = (requests.get("http://api.openweathermap.org/data/2.5/weather?q=" + citySendToAPI + "&APPID=" + apiKey + "&units=metric").content).decode("utf-8")
+        r = (requests.get("http://api.openweathermap.org/data/2.5/weather?q=" + city_sent_to_API + "&APPID=" + api_key + "&units=metric").content).decode("utf-8")
         a = ast.literal_eval(r)
         weather = (a["weather"][0]["description"]).capitalize()
         temperature = str(a["main"]["temp"]) + "°C"
         humidity = str(a["main"]["humidity"]) + "%"
         wind = str(a["wind"]["speed"]) + "km/h"
-        cityFound = str(a["name"]) #New York
-        cityGotFromAPI = str(a["name"]).lower() #new york
-        if city == cityGotFromAPI:
-            city = cityFound + ", " + str(a["sys"]["country"])
+        city_found = str(a["name"]) #New York
+        city_got_from_API = str(a["name"]).lower() #new york
+        if city == city_got_from_API:
+            city = city_found + ", " + str(a["sys"]["country"])
             bot.send_message(chat_id=update.message.chat_id, text="Here is the weather in " + city)
             bot.send_message(chat_id=update.message.chat_id, text=("*" + city + "*\n\nWeather: " + weather + "\nTemperature: " + temperature + "\nHumidity: " + humidity + "\nWind: " + wind), parse_mode=telegram.ParseMode.MARKDOWN)
         else:
@@ -119,8 +119,8 @@ def sendJoke(bot, update):
 #Returns the YouTube URL of the first video. "/video Daft Punk Get Lucky"
 def sendVideoURL(bot, update, args):
     try:
-        textToSearch = args
-        query = '+'.join(textToSearch)
+        text_to_search = args
+        query = '+'.join(text_to_search)
         url = "https://www.youtube.com/results?search_query=" + query
         response = requests.get(url)
         soup = bs4.BeautifulSoup(response.text, 'html.parser')
@@ -138,9 +138,9 @@ def restaurantsAroundMe(bot, update, args):
         if len(args) == 0:
             bot.send_message(chat_id=update.message.chat_id, text="Please type location name.\n/restaurants area name")
         else:
-            areaName = '%20'.join(args)
+            area_name = '%20'.join(args)
             headers = {'Accept': 'application/json', 'user-key': '*******************'}
-            r = (requests.get("https://developers.zomato.com/api/v2.1/search?q=" + areaName, headers=headers).content).decode("utf-8")
+            r = (requests.get("https://developers.zomato.com/api/v2.1/search?q=" + area_name, headers=headers).content).decode("utf-8")
             a = ast.literal_eval(r)
             count = 0
             area = a["restaurants"][0]["restaurant"]["location"]["locality"]
@@ -177,10 +177,10 @@ def sendQuote(bot, update):
 #Returns the message sent to it.
 def echo(bot, update):
     try:
-        inputQuery = update.message.text
+        input_query = update.message.text
         request = ai.text_request()
         request.lang = 'en'
-        request.query = inputQuery
+        request.query = input_query
         response = request.getresponse()
         responsestr = response.read().decode('utf-8')
         response_obj = json.loads(responsestr)
@@ -232,54 +232,54 @@ def downloadImage(bot, update, orientation):
 
 
 #Gets the definition from Oxford Dictionary API.
-def defineWord(wordID, bot, update):
-    appID = '********'
-    appKey = '********************'
+def defineWord(word_ID, bot, update):
+    app_ID = '********'
+    app_key = '********************'
     language = 'en'
-    if wordID == "":
+    if word_ID == "":
         bot.send_message(chat_id=update.message.chat_id, text="Please enter a word after the /define command")
         return "", ""
     try:
-        url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/' + language + '/' + wordID.lower()
-        r = requests.get(url, headers = {'app_id': appID, 'app_key': appKey})
-        jsonText = str(r.text)
-        jsonText = ast.literal_eval(jsonText)
-        completeDefinition = str(jsonText['results'][0]['lexicalEntries'][0]['entries'][0]['senses'][0]['definitions'][0]) + "."
-        completeExample = str(jsonText['results'][0]['lexicalEntries'][0]['entries'][0]['senses'][0]['examples'][0]['text']) + "."
+        url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/' + language + '/' + word_ID.lower()
+        r = requests.get(url, headers = {'app_id': app_ID, 'app_key': app_key})
+        json_text = str(r.text)
+        json_text = ast.literal_eval(json_text)
+        complete_definition = str(json_text['results'][0]['lexicalEntries'][0]['entries'][0]['senses'][0]['definitions'][0]) + "."
+        complete_example = str(json_text['results'][0]['lexicalEntries'][0]['entries'][0]['senses'][0]['examples'][0]['text']) + "."
     except:
         return "Not Available", "Not Available"
-    return completeDefinition.capitalize(), completeExample.capitalize()
+    return complete_definition.capitalize(), complete_example.capitalize()
 
 
 #handlers
-startHandler = CommandHandler('start', start)
-helpHandler = CommandHandler('help', helpText)
-weatherHandler = CommandHandler('weather', sendWeather, pass_args=True)
-factHandler = CommandHandler('fact', sendNumberFact)
-comicHandler = CommandHandler('comic', sendComic)
-restaurantHandler = CommandHandler('restaurants', restaurantsAroundMe, pass_args=True)
-videoURLHandler = CommandHandler('video', sendVideoURL, pass_args=True)
-jokeHandler=  CommandHandler('joke', sendJoke)
-definitionHandler = CommandHandler('define', sendDefinition, pass_args=True)
-quoteHandler = CommandHandler('quote', sendQuote)
-imageHandler = CommandHandler('image', sendImage, pass_args=True)
-echoHandler = MessageHandler(Filters.text, echo)
-unknownHandler = MessageHandler(Filters.command, unknownCommand)
+start_handler = CommandHandler('start', start)
+help_handler = CommandHandler('help', helpText)
+weather_handler = CommandHandler('weather', sendWeather, pass_args=True)
+fact_handler = CommandHandler('fact', sendNumberFact)
+comic_handler = CommandHandler('comic', sendComic)
+restaurant_handler = CommandHandler('restaurants', restaurantsAroundMe, pass_args=True)
+video_URL_handler = CommandHandler('video', sendVideoURL, pass_args=True)
+joke_handler=  CommandHandler('joke', sendJoke)
+definition_handler = CommandHandler('define', sendDefinition, pass_args=True)
+quote_handler = CommandHandler('quote', sendQuote)
+image_handler = CommandHandler('image', sendImage, pass_args=True)
+echo_handler = MessageHandler(Filters.text, echo)
+unkown_handler = MessageHandler(Filters.command, unknownCommand)
 
 #adding handlers to dispatcher
-dispatcher.add_handler(startHandler)
-dispatcher.add_handler(imageHandler)
-dispatcher.add_handler(weatherHandler)
-dispatcher.add_handler(comicHandler)
-dispatcher.add_handler(restaurantHandler)
-dispatcher.add_handler(videoURLHandler)
-dispatcher.add_handler(helpHandler)
-dispatcher.add_handler(definitionHandler)
-dispatcher.add_handler(jokeHandler)
-dispatcher.add_handler(factHandler)
-dispatcher.add_handler(quoteHandler)
-dispatcher.add_handler(echoHandler)
-dispatcher.add_handler(unknownHandler)
+dispatcher.add_handler(start_handler)
+dispatcher.add_handler(image_handler)
+dispatcher.add_handler(weather_handler)
+dispatcher.add_handler(comic_handler)
+dispatcher.add_handler(restaurant_handler)
+dispatcher.add_handler(video_URL_handler)
+dispatcher.add_handler(help_handler)
+dispatcher.add_handler(definition_handler)
+dispatcher.add_handler(joke_handler)
+dispatcher.add_handler(fact_handler)
+dispatcher.add_handler(quote_handler)
+dispatcher.add_handler(echo_handler)
+dispatcher.add_handler(unkown_handler)
 
 
 updater.start_polling()
