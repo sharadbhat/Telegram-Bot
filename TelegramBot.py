@@ -299,7 +299,7 @@ def define_word(word_ID, bot, update):
 start_handler = CommandHandler('start', start)
 help_handler = CommandHandler('help', help_text)
 quote_handler = CommandHandler('quote', send_quote)
-joke_handler=  CommandHandler('joke', send_joke)
+joke_handler =  CommandHandler('joke', send_joke)
 comic_handler = CommandHandler('comic', send_comic)
 weather_handler = CommandHandler('weather', send_weather, pass_args=True)
 image_handler = CommandHandler('image', send_image, pass_args=True)
