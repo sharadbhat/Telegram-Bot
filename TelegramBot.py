@@ -31,8 +31,7 @@ dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
 
 
-#methods
-
+#Command Functionss
 
 def start(bot, update):
     """
@@ -42,7 +41,7 @@ def start(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="Type /help for more information.")
 
 
-def helpText(bot, update):
+def help_text(bot, update):
     """
     Help Text.
     "/help"
@@ -58,7 +57,36 @@ def helpText(bot, update):
     bot.send_message(chat_id=update.message.chat_id, text="For restaurants in an area, reply with -\n/restaurants <area name>\n\nExample:\n/restaurants koramangala")
 
 
-def sendComic(bot, update):
+def send_quote(bot, update):
+    """
+    Returns a random quote from the forismatic API.
+    "/quote"
+    """
+    try:
+        a = (requests.get('http://api.forismatic.com/api/1.0/?method=getQuote&key=453&format=json&lang=en').content).decode("utf-8")
+        a = ast.literal_eval(a)
+        bot.send_message(chat_id=update.message.chat_id, text="Here is your quote, "+ str(update.message.from_user.first_name))
+        bot.send_message(chat_id=update.message.chat_id, text=(a['quoteText'] + "\n\n- " + a['quoteAuthor']))
+    except:
+        bot.send_message(chat_id=update.message.chat_id, text="Error in fetching quote")
+
+
+def send_joke(bot, update):
+    """
+    Returns a random joke from the icanhazdadjoke API.
+    "/joke"
+    """
+    try:
+        headers = {'Accept': 'application/json'}
+        r = (requests.get("https://icanhazdadjoke.com", headers=headers).content).decode("utf-8")
+        a = ast.literal_eval(r)
+        bot.send_message(chat_id=update.message.chat_id, text="Here is your joke, "+ str(update.message.from_user.first_name))
+        bot.send_message(chat_id=update.message.chat_id, text=a["joke"])
+    except:
+        bot.send_message(chat_id=update.message.chat_id, text="Error in fetching joke")
+
+
+def send_comic(bot, update):
     """
     Fetches a random comic from xkcd.
     "/comic"
@@ -80,7 +108,7 @@ def sendComic(bot, update):
         bot.send_message(chat_id=update.message.chat_id, text="Error in fetching comic")
 
 
-def sendWeather(bot, update, args):
+def send_weather(bot, update, args):
     """
     Returns weather of the place.
     "/weather bangalore"
@@ -108,33 +136,34 @@ def sendWeather(bot, update, args):
         bot.send_message(chat_id=update.message.chat_id, text="Error in fetching weather")
 
 
-def sendDefinition(bot, update, args):
+def send_image(bot, update, args):
     """
-    Returns the definition and example of a word.
-    "/define word"
-    """
-    word = ' '.join(args).capitalize()
-    definition, example = defineWord(word, bot, update)
-    if definition != "" and example != "":
-        bot.send_message(chat_id=update.message.chat_id, text=("*" + word + "*\n" + definition + "\n\n_Example_\n" + example), parse_mode=telegram.ParseMode.MARKDOWN)
-
-
-def sendJoke(bot, update):
-    """
-    Returns a random joke from the icanhazdadjoke API.
-    "/joke"
+    Returns an image based on orientation.
+    "/image <orientation>"
     """
     try:
-        headers = {'Accept': 'application/json'}
-        r = (requests.get("https://icanhazdadjoke.com", headers=headers).content).decode("utf-8")
-        a = ast.literal_eval(r)
-        bot.send_message(chat_id=update.message.chat_id, text="Here is your joke, "+ str(update.message.from_user.first_name))
-        bot.send_message(chat_id=update.message.chat_id, text=a["joke"])
+        orientation = ' '.join(args).lower()
+        download_image(bot, update, orientation)
+        bot.send_photo(chat_id=update.message.chat_id, photo=open('image.jpg', 'rb'))
+        os.remove('image.jpg')
     except:
-        bot.send_message(chat_id=update.message.chat_id, text="Error in fetching joke")
+        bot.send_message(chat_id=update.message.chat_id, text="Error")
 
 
-def sendVideoURL(bot, update, args):
+def send_number_fact(bot, update):
+    """
+    Returns a random fact from the numbersapi API.
+    "/fact"
+    """
+    try:
+        a = (requests.get('http://numbersapi.com/random/trivia').content).decode("utf-8")
+        bot.send_message(chat_id=update.message.chat_id, text="Here is your fact, "+ str(update.message.from_user.first_name))
+        bot.send_message(chat_id=update.message.chat_id, text=a)
+    except:
+        bot.send_message(chat_id=update.message.chat_id, text="Error in fetching fact")
+
+
+def send_video_URL(bot, update, args):
     """
     Returns the YouTube URL of the first video.
     "/video Daft Punk Get Lucky"
@@ -153,7 +182,18 @@ def sendVideoURL(bot, update, args):
         bot.send_message(chat_id=update.message.chat_id, text="Error in fetching video URL.")
 
 
-def restaurantsAroundMe(bot, update, args):
+def send_definition(bot, update, args):
+    """
+    Returns the definition and example of a word.
+    "/define word"
+    """
+    word = ' '.join(args).capitalize()
+    definition, example = define_word(word, bot, update)
+    if definition != "" and example != "":
+        bot.send_message(chat_id=update.message.chat_id, text=("*" + word + "*\n" + definition + "\n\n_Example_\n" + example), parse_mode=telegram.ParseMode.MARKDOWN)
+
+
+def send_restaurants_list(bot, update, args):
     """
     Returns a list of restaurants and cuisines
     "/restaurants JP Nagar"
@@ -187,21 +227,7 @@ def restaurantsAroundMe(bot, update, args):
         bot.send_message(chat_id=update.message.chat_id, text="Error in fetching restaurants.")
 
 
-def sendQuote(bot, update):
-    """
-    Returns a random quote from the forismatic API.
-    "/quote"
-    """
-    try:
-        a = (requests.get('http://api.forismatic.com/api/1.0/?method=getQuote&key=453&format=json&lang=en').content).decode("utf-8")
-        a = ast.literal_eval(a)
-        bot.send_message(chat_id=update.message.chat_id, text="Here is your quote, "+ str(update.message.from_user.first_name))
-        bot.send_message(chat_id=update.message.chat_id, text=(a['quoteText'] + "\n\n- " + a['quoteAuthor']))
-    except:
-        bot.send_message(chat_id=update.message.chat_id, text="Error in fetching quote")
-
-
-def smallTalk(bot, update):
+def small_talk(bot, update):
     """
     Small talk using api.ai
     """
@@ -219,41 +245,17 @@ def smallTalk(bot, update):
         bot.send_message(chat_id=update.message.chat_id, text=update.message.text)
 
 
-def unknownCommand(bot, update):
+def unknown_command(bot, update):
     """
     Returns "Unknown Command" if the command is not recognized.
     """
     bot.send_message(chat_id=update.message.chat_id, text="Sorry, I did not understand that command.")
 
 
-def sendNumberFact(bot, update):
-    """
-    Returns a random fact from the numbersapi API.
-    "/fact"
-    """
-    try:
-        a = (requests.get('http://numbersapi.com/random/trivia').content).decode("utf-8")
-        bot.send_message(chat_id=update.message.chat_id, text="Here is your fact, "+ str(update.message.from_user.first_name))
-        bot.send_message(chat_id=update.message.chat_id, text=a)
-    except:
-        bot.send_message(chat_id=update.message.chat_id, text="Error in fetching fact")
 
+#Helper Functions
 
-def sendImage(bot, update, args):
-    """
-    Returns an image based on orientation.
-    "/image <orientation>"
-    """
-    try:
-        orientation = ' '.join(args).lower()
-        downloadImage(bot, update, orientation)
-        bot.send_photo(chat_id=update.message.chat_id, photo=open('image.jpg', 'rb'))
-        os.remove('image.jpg')
-    except:
-        bot.send_message(chat_id=update.message.chat_id, text="Error")
-
-
-def downloadImage(bot, update, orientation):
+def download_image(bot, update, orientation):
     """
     Downloads the image from unsplash.
     """
@@ -270,7 +272,7 @@ def downloadImage(bot, update, orientation):
         bot.send_message(chat_id=update.message.chat_id, text="Error in fetching image")
 
 
-def defineWord(word_ID, bot, update):
+def define_word(word_ID, bot, update):
     """
     Gets the definition from Oxford Dictionary API.
     """
@@ -292,20 +294,23 @@ def defineWord(word_ID, bot, update):
     return complete_definition.capitalize(), complete_example.capitalize()
 
 
+
 #handlers
 start_handler = CommandHandler('start', start)
-help_handler = CommandHandler('help', helpText)
-quote_handler = CommandHandler('quote', sendQuote)
-joke_handler=  CommandHandler('joke', sendJoke)
-comic_handler = CommandHandler('comic', sendComic)
-weather_handler = CommandHandler('weather', sendWeather, pass_args=True)
-image_handler = CommandHandler('image', sendImage, pass_args=True)
-fact_handler = CommandHandler('fact', sendNumberFact)
-video_URL_handler = CommandHandler('video', sendVideoURL, pass_args=True)
-definition_handler = CommandHandler('define', sendDefinition, pass_args=True)
-restaurant_handler = CommandHandler('restaurants', restaurantsAroundMe, pass_args=True)
-small_talk_handler = MessageHandler(Filters.text, smallTalk)
-unkown_handler = MessageHandler(Filters.command, unknownCommand)
+help_handler = CommandHandler('help', help_text)
+quote_handler = CommandHandler('quote', send_quote)
+joke_handler=  CommandHandler('joke', send_joke)
+comic_handler = CommandHandler('comic', send_comic)
+weather_handler = CommandHandler('weather', send_weather, pass_args=True)
+image_handler = CommandHandler('image', send_image, pass_args=True)
+fact_handler = CommandHandler('fact', send_number_fact)
+video_URL_handler = CommandHandler('video', send_video_URL, pass_args=True)
+definition_handler = CommandHandler('define', send_definition, pass_args=True)
+restaurant_handler = CommandHandler('restaurants', send_restaurants_list, pass_args=True)
+small_talk_handler = MessageHandler(Filters.text, small_talk)
+unkown_handler = MessageHandler(Filters.command, unknown_command)
+
+
 
 #adding handlers to dispatcher
 dispatcher.add_handler(start_handler)
@@ -321,6 +326,7 @@ dispatcher.add_handler(definition_handler)
 dispatcher.add_handler(restaurant_handler)
 dispatcher.add_handler(small_talk_handler)
 dispatcher.add_handler(unkown_handler)
+
 
 
 updater.start_polling()
