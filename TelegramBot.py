@@ -75,10 +75,10 @@ def sendComic(bot, update):
 def sendWeather(bot, update, args):
     try:
         #args = "new", "York"
-        api_key = "***********************"
+        API_KEY = "***********************"
         city_sent_to_API = ''.join(args).lower() #newyork
         city = ' '.join(args).lower() #new york
-        r = (requests.get("http://api.openweathermap.org/data/2.5/weather?q=" + city_sent_to_API + "&APPID=" + api_key + "&units=metric").content).decode("utf-8")
+        r = (requests.get("http://api.openweathermap.org/data/2.5/weather?q=" + city_sent_to_API + "&APPID=" + API_KEY + "&units=metric").content).decode("utf-8")
         a = ast.literal_eval(r)
         weather = (a["weather"][0]["description"]).capitalize()
         temperature = str(a["main"]["temp"]) + "°C"
@@ -139,7 +139,8 @@ def restaurantsAroundMe(bot, update, args):
             bot.send_message(chat_id=update.message.chat_id, text="Please type location name.\n/restaurants area name")
         else:
             area_name = '%20'.join(args)
-            headers = {'Accept': 'application/json', 'user-key': '*******************'}
+            USER_KEY = '*****************'
+            headers = {'Accept': 'application/json', 'user-key': USER_KEY}
             r = (requests.get("https://developers.zomato.com/api/v2.1/search?q=" + area_name, headers=headers).content).decode("utf-8")
             a = ast.literal_eval(r)
             count = 0
@@ -232,15 +233,15 @@ def downloadImage(bot, update, orientation):
 
 #Gets the definition from Oxford Dictionary API.
 def defineWord(word_ID, bot, update):
-    app_ID = '********'
-    app_key = '********************'
+    APP_ID = '********'
+    APP_KEY = '********************'
     language = 'en'
     if word_ID == "":
         bot.send_message(chat_id=update.message.chat_id, text="Please enter a word after the /define command")
         return "", ""
     try:
         url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/' + language + '/' + word_ID.lower()
-        r = requests.get(url, headers = {'app_id': app_ID, 'app_key': app_key})
+        r = requests.get(url, headers = {'app_id': APP_ID, 'app_key': APP_KEY})
         json_text = str(r.text)
         json_text = ast.literal_eval(json_text)
         complete_definition = str(json_text['results'][0]['lexicalEntries'][0]['entries'][0]['senses'][0]['definitions'][0]) + "."
