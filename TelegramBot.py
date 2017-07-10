@@ -144,19 +144,18 @@ def restaurantsAroundMe(bot, update, args):
             a = ast.literal_eval(r)
             count = 0
             area = a["restaurants"][0]["restaurant"]["location"]["locality"]
-            text = ""
             for i in a["restaurants"]:
                 count += 1
                 link = str(i["restaurant"]["url"]).replace("\\","")
                 name = i["restaurant"]["name"]
-                text = text + "*" + name + "*"
-                text = text + "\nAverage Rating: " + str(i["restaurant"]["user_rating"]["aggregate_rating"])
-                text = text + "\nCuisines: " + i["restaurant"]["cuisines"]
-                text = text + "\nAverage Cost for 2: " + i["restaurant"]["currency"] + " " + str(i["restaurant"]["average_cost_for_two"])
-                text = text + "\n[" + name + "](" + str(link) + ")"
+                text = "*" + name + "*"
+                text += "\nAverage Rating: " + str(i["restaurant"]["user_rating"]["aggregate_rating"])
+                text += "\nCuisines: " + i["restaurant"]["cuisines"]
+                text += "\nAverage Cost for 2: " + i["restaurant"]["currency"] + " " + str(i["restaurant"]["average_cost_for_two"])
+                text += "\n[" + name + "](" + str(link) + ")"
                 if count == 5:
                     break
-                text = text + "\n\n"
+                text += "\n\n"
             bot.send_message(chat_id=update.message.chat_id, text="Here are the restaurants around " + area)
             bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode=telegram.ParseMode.MARKDOWN)
     except:
