@@ -113,6 +113,8 @@ def send_weather(bot, update, args):
     Returns weather of the place.
     "/weather bangalore"
     """
+    if len(args) == 0:
+        bot.send_message(chat_id=update.message.chat_id, text="Enter city name. /weather <city name>")
     try:
         #args = "new", "York"
         API_KEY = "***********************"
@@ -168,6 +170,8 @@ def send_video_URL(bot, update, args):
     Returns the YouTube URL of the first video.
     "/video Daft Punk Get Lucky"
     """
+    if len(args) == 0:
+        bot.send_message(chat_id=update.message.chat_id, text="Enter video name. /video <video name>")
     try:
         text_to_search = args
         query = '+'.join(text_to_search)
@@ -187,6 +191,8 @@ def send_definition(bot, update, args):
     Returns the definition and example of a word.
     "/define word"
     """
+    if len(args) == 0:
+        bot.send_message(chat_id=update.message.chat_id, text="Enter word. /define <word>")
     word = ' '.join(args).capitalize()
     definition, example = define_word(word, bot, update)
     if definition != "" and example != "":
@@ -198,31 +204,30 @@ def send_restaurants_list(bot, update, args):
     Returns a list of restaurants and cuisines
     "/restaurants JP Nagar"
     """
+    if len(args) == 0:
+        bot.send_message(chat_id=update.message.chat_id, text="Please type location name.\n/restaurants area name")
     try:
-        if len(args) == 0:
-            bot.send_message(chat_id=update.message.chat_id, text="Please type location name.\n/restaurants area name")
-        else:
-            area_name = '%20'.join(args)
-            USER_KEY = '*****************'
-            headers = {'Accept': 'application/json', 'user-key': USER_KEY}
-            r = (requests.get("https://developers.zomato.com/api/v2.1/search?q=" + area_name, headers=headers).content).decode("utf-8")
-            a = ast.literal_eval(r)
-            count = 0
-            area = a["restaurants"][0]["restaurant"]["location"]["locality"]
-            for i in a["restaurants"]:
-                count += 1
-                link = str(i["restaurant"]["url"]).replace("\\","")
-                name = i["restaurant"]["name"]
-                text = "*" + name + "*"
-                text += "\nAverage Rating: " + str(i["restaurant"]["user_rating"]["aggregate_rating"])
-                text += "\nCuisines: " + i["restaurant"]["cuisines"]
-                text += "\nAverage Cost for 2: " + i["restaurant"]["currency"] + " " + str(i["restaurant"]["average_cost_for_two"])
-                text += "\n[" + name + "](" + str(link) + ")"
-                if count == 5:
-                    break
-                text += "\n\n"
-            bot.send_message(chat_id=update.message.chat_id, text="Here are the restaurants around " + area)
-            bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode=telegram.ParseMode.MARKDOWN)
+        area_name = '%20'.join(args)
+        USER_KEY = '*****************'
+        headers = {'Accept': 'application/json', 'user-key': USER_KEY}
+        r = (requests.get("https://developers.zomato.com/api/v2.1/search?q=" + area_name, headers=headers).content).decode("utf-8")
+        a = ast.literal_eval(r)
+        count = 0
+        area = a["restaurants"][0]["restaurant"]["location"]["locality"]
+        for i in a["restaurants"]:
+            count += 1
+            link = str(i["restaurant"]["url"]).replace("\\","")
+            name = i["restaurant"]["name"]
+            text = "*" + name + "*"
+            text += "\nAverage Rating: " + str(i["restaurant"]["user_rating"]["aggregate_rating"])
+            text += "\nCuisines: " + i["restaurant"]["cuisines"]
+            text += "\nAverage Cost for 2: " + i["restaurant"]["currency"] + " " + str(i["restaurant"]["average_cost_for_two"])
+            text += "\n[" + name + "](" + str(link) + ")"
+            if count == 5:
+                break
+            text += "\n\n"
+        bot.send_message(chat_id=update.message.chat_id, text="Here are the restaurants around " + area)
+        bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode=telegram.ParseMode.MARKDOWN)
     except:
         bot.send_message(chat_id=update.message.chat_id, text="Error in fetching restaurants.")
 
@@ -279,9 +284,6 @@ def define_word(word_ID, bot, update):
     APP_ID = '********'
     APP_KEY = '********************'
     language = 'en'
-    if word_ID == "":
-        bot.send_message(chat_id=update.message.chat_id, text="Please enter a word after the /define command")
-        return "", ""
     try:
         url = 'https://od-api.oxforddictionaries.com:443/api/v1/entries/' + language + '/' + word_ID.lower()
         r = requests.get(url, headers = {'app_id': APP_ID, 'app_key': APP_KEY})
