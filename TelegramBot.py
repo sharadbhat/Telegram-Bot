@@ -115,27 +115,28 @@ def send_weather(bot, update, args):
     """
     if len(args) == 0:
         bot.send_message(chat_id=update.message.chat_id, text="Enter city name. /weather <city name>")
-    try:
-        #args = "new", "York"
-        API_KEY = "***********************"
-        city_sent_to_API = ''.join(args).lower() #newyork
-        city = ' '.join(args).lower() #new york
-        r = (requests.get("http://api.openweathermap.org/data/2.5/weather?q=" + city_sent_to_API + "&APPID=" + API_KEY + "&units=metric").content).decode("utf-8")
-        a = ast.literal_eval(r)
-        weather = (a["weather"][0]["description"]).capitalize()
-        temperature = str(a["main"]["temp"]) + "°C"
-        humidity = str(a["main"]["humidity"]) + "%"
-        wind = str(a["wind"]["speed"]) + "km/h"
-        city_found = str(a["name"]) #New York
-        city_got_from_API = str(a["name"]).lower() #new york
-        if city == city_got_from_API:
-            city = city_found + ", " + str(a["sys"]["country"])
-            bot.send_message(chat_id=update.message.chat_id, text="Here is the weather in " + city)
-            bot.send_message(chat_id=update.message.chat_id, text=("*" + city + "*\n\nWeather: " + weather + "\nTemperature: " + temperature + "\nHumidity: " + humidity + "\nWind: " + wind), parse_mode=telegram.ParseMode.MARKDOWN)
-        else:
-            bot.send_message(chat_id=update.message.chat_id, text="City not found")
-    except:
-        bot.send_message(chat_id=update.message.chat_id, text="Error in fetching weather")
+    else:
+        try:
+            #args = "new", "York"
+            API_KEY = "***********************"
+            city_sent_to_API = ''.join(args).lower() #newyork
+            city = ' '.join(args).lower() #new york
+            r = (requests.get("http://api.openweathermap.org/data/2.5/weather?q=" + city_sent_to_API + "&APPID=" + API_KEY + "&units=metric").content).decode("utf-8")
+            a = ast.literal_eval(r)
+            weather = (a["weather"][0]["description"]).capitalize()
+            temperature = str(a["main"]["temp"]) + "°C"
+            humidity = str(a["main"]["humidity"]) + "%"
+            wind = str(a["wind"]["speed"]) + "km/h"
+            city_found = str(a["name"]) #New York
+            city_got_from_API = str(a["name"]).lower() #new york
+            if city == city_got_from_API:
+                city = city_found + ", " + str(a["sys"]["country"])
+                bot.send_message(chat_id=update.message.chat_id, text="Here is the weather in " + city)
+                bot.send_message(chat_id=update.message.chat_id, text=("*" + city + "*\n\nWeather: " + weather + "\nTemperature: " + temperature + "\nHumidity: " + humidity + "\nWind: " + wind), parse_mode=telegram.ParseMode.MARKDOWN)
+            else:
+                bot.send_message(chat_id=update.message.chat_id, text="City not found")
+        except:
+            bot.send_message(chat_id=update.message.chat_id, text="Error in fetching weather")
 
 
 def send_image(bot, update, args):
@@ -172,18 +173,19 @@ def send_video_URL(bot, update, args):
     """
     if len(args) == 0:
         bot.send_message(chat_id=update.message.chat_id, text="Enter video name. /video <video name>")
-    try:
-        text_to_search = args
-        query = '+'.join(text_to_search)
-        url = "https://www.youtube.com/results?search_query=" + query
-        response = requests.get(url)
-        soup = bs4.BeautifulSoup(response.text, 'html.parser')
-        for vid in soup.findAll(attrs={'class':'yt-uix-tile-link'}):
-            videoURL = ('https://www.youtube.com' + vid['href'])
-            break
-        bot.send_message(chat_id=update.message.chat_id, text=videoURL)
-    except:
-        bot.send_message(chat_id=update.message.chat_id, text="Error in fetching video URL.")
+    else:
+        try:
+            text_to_search = args
+            query = '+'.join(text_to_search)
+            url = "https://www.youtube.com/results?search_query=" + query
+            response = requests.get(url)
+            soup = bs4.BeautifulSoup(response.text, 'html.parser')
+            for vid in soup.findAll(attrs={'class':'yt-uix-tile-link'}):
+                videoURL = ('https://www.youtube.com' + vid['href'])
+                break
+            bot.send_message(chat_id=update.message.chat_id, text=videoURL)
+        except:
+            bot.send_message(chat_id=update.message.chat_id, text="Error in fetching video URL.")
 
 
 def send_definition(bot, update, args):
@@ -193,10 +195,11 @@ def send_definition(bot, update, args):
     """
     if len(args) == 0:
         bot.send_message(chat_id=update.message.chat_id, text="Enter word. /define <word>")
-    word = ' '.join(args).capitalize()
-    definition, example = define_word(word, bot, update)
-    if definition != "" and example != "":
-        bot.send_message(chat_id=update.message.chat_id, text=("*" + word + "*\n" + definition + "\n\n_Example_\n" + example), parse_mode=telegram.ParseMode.MARKDOWN)
+    else:
+        word = ' '.join(args).capitalize()
+        definition, example = define_word(word, bot, update)
+        if definition != "" and example != "":
+            bot.send_message(chat_id=update.message.chat_id, text=("*" + word + "*\n" + definition + "\n\n_Example_\n" + example), parse_mode=telegram.ParseMode.MARKDOWN)
 
 
 def send_restaurants_list(bot, update, args):
@@ -206,30 +209,31 @@ def send_restaurants_list(bot, update, args):
     """
     if len(args) == 0:
         bot.send_message(chat_id=update.message.chat_id, text="Please type location name.\n/restaurants area name")
-    try:
-        area_name = '%20'.join(args)
-        USER_KEY = '*****************'
-        headers = {'Accept': 'application/json', 'user-key': USER_KEY}
-        r = (requests.get("https://developers.zomato.com/api/v2.1/search?q=" + area_name, headers=headers).content).decode("utf-8")
-        a = ast.literal_eval(r)
-        count = 0
-        area = a["restaurants"][0]["restaurant"]["location"]["locality"]
-        for i in a["restaurants"]:
-            count += 1
-            link = str(i["restaurant"]["url"]).replace("\\","")
-            name = i["restaurant"]["name"]
-            text = "*" + name + "*"
-            text += "\nAverage Rating: " + str(i["restaurant"]["user_rating"]["aggregate_rating"])
-            text += "\nCuisines: " + i["restaurant"]["cuisines"]
-            text += "\nAverage Cost for 2: " + i["restaurant"]["currency"] + " " + str(i["restaurant"]["average_cost_for_two"])
-            text += "\n[" + name + "](" + str(link) + ")"
-            if count == 5:
-                break
-            text += "\n\n"
-        bot.send_message(chat_id=update.message.chat_id, text="Here are the restaurants around " + area)
-        bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode=telegram.ParseMode.MARKDOWN)
-    except:
-        bot.send_message(chat_id=update.message.chat_id, text="Error in fetching restaurants.")
+    else:
+        try:
+            area_name = '%20'.join(args)
+            USER_KEY = '*****************'
+            headers = {'Accept': 'application/json', 'user-key': USER_KEY}
+            r = (requests.get("https://developers.zomato.com/api/v2.1/search?q=" + area_name, headers=headers).content).decode("utf-8")
+            a = ast.literal_eval(r)
+            count = 0
+            area = a["restaurants"][0]["restaurant"]["location"]["locality"]
+            for i in a["restaurants"]:
+                count += 1
+                link = str(i["restaurant"]["url"]).replace("\\","")
+                name = i["restaurant"]["name"]
+                text = "*" + name + "*"
+                text += "\nAverage Rating: " + str(i["restaurant"]["user_rating"]["aggregate_rating"])
+                text += "\nCuisines: " + i["restaurant"]["cuisines"]
+                text += "\nAverage Cost for 2: " + i["restaurant"]["currency"] + " " + str(i["restaurant"]["average_cost_for_two"])
+                text += "\n[" + name + "](" + str(link) + ")"
+                if count == 5:
+                    break
+                text += "\n\n"
+            bot.send_message(chat_id=update.message.chat_id, text="Here are the restaurants around " + area)
+            bot.send_message(chat_id=update.message.chat_id, text=text, parse_mode=telegram.ParseMode.MARKDOWN)
+        except:
+            bot.send_message(chat_id=update.message.chat_id, text="Error in fetching restaurants.")
 
 
 def small_talk(bot, update):
@@ -247,7 +251,7 @@ def small_talk(bot, update):
         reply = response_obj["result"]["fulfillment"]["speech"]
         bot.send_message(chat_id=update.message.chat_id, text=reply)
     except:
-        bot.send_message(chat_id=update.message.chat_id, text=update.message.text)
+        bot.send_message(chat_id=update.message.chat_id, text=update.message.text) #Return input text as reply if error.
 
 
 def unknown_command(bot, update):
