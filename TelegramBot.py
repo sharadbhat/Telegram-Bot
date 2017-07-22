@@ -1,6 +1,7 @@
 from telegram.ext import Updater
 from telegram.ext import MessageHandler, Filters
 from telegram.ext import CommandHandler
+from cleverwrap import CleverWrap
 import logging
 import telegram
 import os.path
@@ -23,8 +24,7 @@ except ImportError:
 
 updater = Updater(token='***********************************')
 
-CLIENT_ACCESS_TOKEN = '*****************'
-ai = apiai.ApiAI(CLIENT_ACCESS_TOKEN)
+cw = CleverWrap("********************")
 
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
@@ -237,17 +237,10 @@ def send_restaurants_list(bot, update, args):
 
 def small_talk(bot, update):
     """
-    Small talk using api.ai
+    Small talk using CleverBot API.
     """
     try:
-        input_query = update.message.text
-        request = ai.text_request()
-        request.lang = 'en'
-        request.query = input_query
-        response = request.getresponse()
-        responsestr = response.read().decode('utf-8')
-        response_obj = json.loads(responsestr)
-        reply = response_obj["result"]["fulfillment"]["speech"]
+        reply = cw.say(update.message.text)
         bot.send_message(chat_id=update.message.chat_id, text=reply)
     except:
         bot.send_message(chat_id=update.message.chat_id, text=update.message.text) #Return input text as reply if error.
