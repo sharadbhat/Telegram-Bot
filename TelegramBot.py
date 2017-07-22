@@ -14,13 +14,6 @@ import os
 import urllib.parse
 import urllib.request
 import bs4
-try:
-    import apiai
-except ImportError:
-    sys.path.append(
-        os.path.join(os.path.dirname(os.path.realpath(__file__)), os.pardir)
-    )
-    import apiai
 
 updater = Updater(token='***********************************')
 
